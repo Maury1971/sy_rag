@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperYacht RAG Assistant - Analisi Regolamentare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1E3A8A;
+            --primary-dark: #0F2D6B;
+            --secondary: #4B5563;
+            --accent: #059669;
+            --light: #F3F4F6;
+            --border: #E5E7EB;
+            --error: #DC2626;
+            --success: #059669;
+            --warning: #D97706;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 20px;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 700px;
+        }
+        
+        .sidebar {
+            background: var(--light);
+            padding: 25px 20px;
+            border-right: 1px solid var(--border);
+        }
+        
+        .nav-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .nav-item:hover {
+            background: rgba(30, 58, 138, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .content {
+            padding: 35px;
+            max-height: 700px;
+            overflow-y: auto;
+        }
+        
+        .form-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            font-size: 1.7rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-title i {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+        
+        .description {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .checkbox-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .checkbox-item input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+        
+        select, input[type="text"], input[type="number"], input[type="email"], textarea {
+            width: 100%;
+            padding: 15px 18px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .radio-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .radio-item input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+        
+        .file-upload-area {
+            border: 3px dashed var(--border);
+            border-radius: 15px;
+            padding: 50px 30px;
+            text-align: center;
+            transition: all 0.3s;
+            background: #fafafa;
+            cursor: pointer;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(30, 58, 138, 0.05);
+            transform: scale(1.02);
+        }
+        
+        .file-upload-area i {
+            font-size: 60px;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+        
+        .file-list {
+            margin-top: 25px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .file-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .file-icon {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+        
+        .file-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .file-size {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            opacity: 0.7;
+        }
+        
+        .remove-file {
+            color: var(--error);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        
+        .remove-file:hover {
+            background: rgba(220, 38, 38, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 2px solid var(--border);
+        }
+        
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 140px;
+            justify-content: center;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--light);
+            color: var(--secondary);
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--border);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            background: #047857;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: var(--light);
+            border-radius: 3px;
+            margin: 25px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.5s ease;
+            width: 0%;
+            position: relative;
+        }
+        
+        .progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .progress-step {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--secondary);
+            flex: 1;
+        }
+        
+        .progress-step.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light);
+            align-items: flex-start;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: var(--secondary);
+            flex: 1;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            color: var(--primary);
+            flex: 2;
+            text-align: right;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 20px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+        }
+        
+        .notification.success {
+            background: var(--success);
+        }
+        
+        .notification.error {
+            background: var(--error);
+        }
+        
+        .notification.warning {
+            background: var(--warning);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: var(--light);
+            padding: 25px 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+        
+        .feature-description {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .nav-item {
+                justify-content: center;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .radio-item {
+                min-width: auto;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            header {
+                padding: 30px 20px;
+            }
+            
+            .content {
+                padding: 25px 20px;
+            }
+            
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-ship"></i> SuperYacht RAG Assistant</h1>
+            <p class="subtitle">Sistema Intelligente di Analisi Regolamentare per lo Yachting</p>
+        </header>
+        
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress" id="progress-bar"></div>
+        </div>
+        <div class="progress-steps">
+            <div class="progress-step active" data-step="1">Registri</div>
+            <div class="progress-step" data-step="2">Sistema</div>
+            <div class="progress-step" data-step="3">Filtri</div>
+            <div class="progress-step" data-step="4">Richiesta</div>
+            <div class="progress-step" data-step="5">Allegati</div>
+            <div class="progress-step" data-step="6">Riepilogo</div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Sidebar Navigation -->
+            <nav class="sidebar">
+                <div class="nav-item active" data-section="registries">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Registri Marittimi</span>
+                </div>
+                <div class="nav-item" data-section="system">
+                    <i class="fas fa-cogs"></i>
+                    <span>Modalità Sistema</span>
+                </div>
+                <div class="nav-item" data-section="filters">
+                    <i class="fas fa-filter"></i>
+                    <span>Filtri Avanzati</span>
+                </div>
+                <div class="nav-item" data-section="request">
+                    <i class="fas fa-edit"></i>
+                    <span>Richiesta Analisi</span>
+                </div>
+                <div class="nav-item" data-section="attachments">
+                    <i class="fas fa-paperclip"></i>
+                    <span>Documenti Allegati</span>
+                </div>
+                <div class="nav-item" data-section="summary">
+                    <i class="fas fa-eye"></i>
+                    <span>Riepilogo</span>
+                </div>
+            </nav>
+            
+            <!-- Main Content -->
+            <div class="content">
+                <!-- Registri Section -->
+                <div class="form-section active" id="registries-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        Registri Marittimi
+                    </h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="feature-title">Certificazione Completa</div>
+                            <div class="feature-description">Analisi basata sui principali registri navali internazionali</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-globe-europe"></i>
+                            </div>
+                            <div class="feature-title">Copertura Globale</div>
+                            <div class="feature-description">Normative internazionali e requisiti locali</div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="feature-title">Aggiornamento Continuo</div>
+                            <div class="feature-description">Database sempre aggiornato con le ultime normative</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Seleziona i registri da includere nell'analisi:</label>
+                        <p class="description">Scegli i registri navali rilevanti per la tua analisi. Puoi selezionare uno o più registri.</p>
+                        <div class="checkbox-grid" id="registries-container">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="showPreviousSection()" style="visibility: hidden;">
+                            <i class="fas fa-arrow-left"></i> Indietro
+                        </button>
+                        <button class="btn btn-primary" onclick="showNextSection()">
+                            Avanti <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- System Mode Section -->
+                <div class="form-section" id="system-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-cogs"></i>
+                        Modalità Sistema
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label>Modalità di funzionamento:</label>
+                        <p class="description">Scegli come vuoi che il sistema processi la tua richiesta</p>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="online" name="system_mode" value="online" checked>
+                                <label for="online">
+                                    <i class="fas fa-cloud"></i> Modalità Online<br>
+                                    <small>Database Locale + Cloud (Raccomandato)</small>
+                                </label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="offline" name="system_mode" value="offline">
+                                <label for="offline">
+                                    <i class="fas fa-desktop"></i> Modalità Offline<br>
+                                    <small>Solo Database Locale</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="search_both">Opzioni di Ricerca:</label>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="search_both" name="search_both" checked>
+                            <label for="search_both">Cerca in entrambi i database (locale e online)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="output_language">Lingua di Output:</label>
+                        <select id="output_language" name="output_language">
+                            <option value="it">Italiano</option>
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                            <option value="fr">Français</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="llm_model">Modello AI:</label>
+                        <select id="llm_model" name="llm_model">
+                            <option value="deepseek/deepseek-chat">DeepSeek Chat (Raccomandato)</option>
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            <option value="gpt-4">GPT-4</option>
+                            <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="showPreviousSection()">
+                            <i class="fas fa-arrow-left"></i> Indietro
+                        </button>
+                        <button class="btn btn-primary" onclick="showNextSection()">
+                            Avanti <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filters Section -->
+                <div class="form-section" id="filters-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-filter"></i>
+                        Filtri Avanzati
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label for="yacht_type">Tipo di Yacht:</label>
+                        <select id="yacht_type" name="yacht_type">
+                            <option value="">-- Seleziona Tipo --</option>
+                            <option value="sail">⛵ Vela</option>
+                            <option value="motor">🚤 Motore</option>
+                            <option value="catamaran">⛵ Catamarano</option>
+                            <option value="superyacht">🛳️ SuperYacht</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gt">Stazza Lorda (GT):</label>
+                        <input type="number" id="gt" name="gt" min="0" placeholder="Inserisci la stazza lorda">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="navigation_zone">Zona di Navigazione:</label>
+                        <select id="navigation_zone" name="navigation_zone">
+                            <option value="">-- Seleziona Zona --</option>
+                            <option value="unlimited">🌊 Navigazione Illimitata</option>
+                            <option value="coastal">🏖️ Navigazione Costiera</option>
+                            <option value="mediterranean">🌅 Mediterraneo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="flag_state">Stato di Bandiera:</label>
+                        <select id="flag_state" name="flag_state">
+                            <option value="">-- Seleziona Bandiera --</option>
+                            <option value="italy">🇮🇹 Italia</option>
+                            <option value="uk">🇬🇧 Regno Unito</option>
+                            <option value="malta">🇲🇹 Malta</option>
+                            <option value="marshall_islands">🇲🇭 Isole Marshall</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="showPreviousSection()">
+                            <i class="fas fa-arrow-left"></i> Indietro
+                        </button>
+                        <button class="btn btn-primary" onclick="showNextSection()">
+                            Avanti <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Request Section -->
+                <div class="form-section" id="request-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-edit"></i>
+                        Richiesta di Analisi
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label for="question">Domanda / Richiesta di Analisi:</label>
+                        <p class="description">Descrivi in dettaglio la tua richiesta. Più specifica è la domanda, più accurata sarà l'analisi.</p>
+                        <textarea 
+                            id="question" 
+                            name="question" 
+                            placeholder="Esempio: 'Quali sono i requisiti per l'installazione di sistemi antincendio su yacht di 50m secondo RINA e DNV? Specificare i materiali, le distanze minime e i sistemi di rilevamento richiesti.'"
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user_email">La tua Email (per la risposta):</label>
+                        <input type="email" id="user_email" name="user_email" placeholder="nome@esempio.com" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="showPreviousSection()">
+                            <i class="fas fa-arrow-left"></i> Indietro
+                        </button>
+                        <button class="btn btn-primary" onclick="showNextSection()">
+                            Avanti <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Attachments Section -->
+                <div class="form-section" id="attachments-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-paperclip"></i>
+                        Documenti Allegati
+                    </h2>
+                    
+                    <div class="form-group">
+                        <p class="description">Allega documenti rilevanti per l'analisi (piani, specifiche, foto, etc.)</p>
+                        <div class="file-upload-area" id="file-upload-area">
+                            <div>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h3>Trascina i file qui o clicca per selezionare</h3>
+                                <p>Formati supportati: PDF, JSONL, DOC, DOCX, TXT, ODT, RTF, MD, HTML</p>
+                                <p>Dimensione massima: 50MB per file</p>
+                            </div>
+                            <input type="file" id="file-input" multiple style="display: none;" 
+                                   accept=".pdf,.jsonl,.doc,.docx,.txt,.odt,.rtf,.md,.html">
+                        </div>
+                        
+                        <div class="file-list" id="file-list">
+                            <!-- File list will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="showPreviousSection()">
+                            <i class="fas fa-arrow-left"></i> Indietro
+                        </button>
+                        <button class="btn btn-primary" onclick="showNextSection()">
+                            Riepilogo <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Summary Section -->
+                <div class="form-section" id="summary-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-eye"></i>
+                        Riepilogo Richiesta
+                    </h2>
+                    
+                    <div class="form-group">
+                        <h3 style="color: var(--primary); margin-bottom: 20px;">Controlla le impostazioni selezionate:</h3>
+                        <div id="summary-content">
+                            <!-- Summary will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="showPreviousSection()">
+                            <i class="fas fa-edit"></i> Modifica
+                        </button>
+                        <button class="btn btn-success" onclick="submitRequest()" id="submit-btn">
+                            <i class="fas fa-paper-plane"></i> Invia Richiesta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            registries: {
+                "RINA": "RINA",
+                "Lloyds Register": "Lloyd's Register",
+                "DNV": "DNV",
+                "ABS": "ABS",
+                "Bureau Veritas": "Bureau Veritas",
+                "Registro Italiano Navale": "Registro Italiano Navale"
+            },
+            maxFileSize: 50 * 1024 * 1024, // 50MB
+            supportedFormats: ['.pdf', '.jsonl', '.doc', '.docx', '.txt', '.odt', '.rtf', '.md', '.html'],
+            // Serverless function endpoint - replace with your actual endpoint
+            apiEndpoint: 'https://your-netlify-function.netlify.app/.netlify/functions/submit-request'
+        };
+
+        // State
+        let state = {
+            selectedFiles: [],
+            currentSection: 'registries',
+            sections: ['registries', 'system', 'filters', 'request', 'attachments', 'summary']
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeRegistries();
+            initializeFileUpload();
+            updateProgressBar();
+        });
+
+        function initializeRegistries() {
+            const container = document.getElementById('registries-container');
+            for (const [key, value] of Object.entries(CONFIG.registries)) {
+                const checkbox = document.createElement('div');
+                checkbox.className = 'checkbox-item';
+                checkbox.innerHTML = `
+                    <input type="checkbox" id="reg_${key}" name="registries" value="${key}" checked>
+                    <label for="reg_${key}">${value}</label>
+                `;
+                container.appendChild(checkbox);
+            }
+        }
+
+        function initializeFileUpload() {
+            const fileInput = document.getElementById('file-input');
+            const uploadArea = document.getElementById('file-upload-area');
+            const fileList = document.getElementById('file-list');
+
+            // Click to select files
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            // File input change
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+        }
+
+        function handleFileSelect(e) {
+            handleFiles(e.target.files);
+            e.target.value = ''; // Reset input
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                // Validate file
+                if (!validateFile(file)) continue;
+
+                // Check for duplicates
+                if (!state.selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                    state.selectedFiles.push(file);
+                }
+            }
+            updateFileList();
+        }
+
+        function validateFile(file) {
+            const extension = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (!CONFIG.supportedFormats.includes(extension)) {
+                showNotification(`Formato non supportato: ${file.name}`, 'error');
+                return false;
+            }
+
+            if (file.size > CONFIG.maxFileSize) {
+                showNotification(`File troppo grande: ${file.name} (max 50MB)`, 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+
+            if (state.selectedFiles.length === 0) {
+                fileList.innerHTML = '<p style="text-align: center; color: var(--secondary); padding: 20px;">Nessun file selezionato</p>';
+                return;
+            }
+
+            state.selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-file" onclick="removeFile(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            state.selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showNextSection() {
+            const currentIndex = state.sections.indexOf(state.currentSection);
+            if (currentIndex < state.sections.length - 1) {
+                showSection(state.sections[currentIndex + 1]);
+            }
+        }
+
+        function showPreviousSection() {
+            const currentIndex = state.sections.indexOf(state.currentSection);
+            if (currentIndex > 0) {
+                showSection(state.sections[currentIndex - 1]);
+            }
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show target section
+            document.getElementById(sectionId + '-section').classList.add('active');
+
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            // Update progress
+            state.currentSection = sectionId;
+            updateProgressBar();
+
+            // Update summary if we're on the summary page
+            if (sectionId === 'summary') {
+                updateSummary();
+            }
+        }
+
+        function updateProgressBar() {
+            const currentIndex = state.sections.indexOf(state.currentSection);
+            const progress = ((currentIndex + 1) / state.sections.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            
+            // Update progress steps
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                if (index <= currentIndex) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('summary-content');
+            
+            // Collect form data
+            const formData = collectFormData();
+
+            let html = `
+                <div class="summary-item">
+                    <div class="summary-label">Registri Selezionati:</div>
+                    <div class="summary-value">${formData.registries.join(', ')}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Modalità Sistema:</div>
+                    <div class="summary-value">${formData.system_mode === 'online' ? 'Online' : 'Offline'}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Ricerca Database:</div>
+                    <div class="summary-value">${formData.search_both ? 'Locale + Online' : 'Solo Locale'}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Lingua Output:</div>
+                    <div class="summary-value">${document.getElementById('output_language').options[document.getElementById('output_language').selectedIndex].text}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Modello AI:</div>
+                    <div class="summary-value">${formData.llm_model}</div>
+                </div>
+            `;
+
+            // Add optional filters
+            if (formData.yacht_type) {
+                html += `<div class="summary-item">
+                    <div class="summary-label">Tipo Yacht:</div>
+                    <div class="summary-value">${document.getElementById('yacht_type').options[document.getElementById('yacht_type').selectedIndex].text}</div>
+                </div>`;
+            }
+
+            if (formData.gt) {
+                html += `<div class="summary-item">
+                    <div class="summary-label">Stazza Lorda:</div>
+                    <div class="summary-value">${formData.gt} GT</div>
+                </div>`;
+            }
+
+            if (formData.navigation_zone) {
+                html += `<div class="summary-item">
+                    <div class="summary-label">Zona Navigazione:</div>
+                    <div class="summary-value">${document.getElementById('navigation_zone').options[document.getElementById('navigation_zone').selectedIndex].text}</div>
+                </div>`;
+            }
+
+            if (formData.flag_state) {
+                html += `<div class="summary-item">
+                    <div class="summary-label">Bandiera:</div>
+                    <div class="summary-value">${document.getElementById('flag_state').options[document.getElementById('flag_state').selectedIndex].text}</div>
+                </div>`;
+            }
+
+            html += `
+                <div class="summary-item">
+                    <div class="summary-label">Email:</div>
+                    <div class="summary-value">${formData.user_email}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Allegati:</div>
+                    <div class="summary-value">${formData.attachments.length} file</div>
+                </div>
+                <div class="summary-item" style="border-bottom: none; margin-top: 25px; align-items: flex-start;">
+                    <div class="summary-label" style="font-weight: bold; color: var(--primary);">Domanda:</div>
+                </div>
+                <div style="background: var(--light); padding: 20px; border-radius: 10px; margin-top: 15px; border-left: 4px solid var(--primary);">
+                    ${formData.question.replace(/\n/g, '<br>')}
+                </div>
+            `;
+
+            summary.innerHTML = html;
+        }
+
+        function collectFormData() {
+            return {
+                registries: Array.from(document.querySelectorAll('input[name="registries"]:checked')).map(cb => cb.value),
+                system_mode: document.querySelector('input[name="system_mode"]:checked').value,
+                search_both: document.getElementById('search_both').checked,
+                output_language: document.getElementById('output_language').value,
+                llm_model: document.getElementById('llm_model').value,
+                yacht_type: document.getElementById('yacht_type').value,
+                gt: document.getElementById('gt').value,
+                navigation_zone: document.getElementById('navigation_zone').value,
+                flag_state: document.getElementById('flag_state').value,
+                question: document.getElementById('question').value,
+                user_email: document.getElementById('user_email').value,
+                attachments: state.selectedFiles.map(f => f.name)
+            };
+        }
+
+        async function submitRequest() {
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                // Validate required fields
+                if (!validateForm()) {
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.innerHTML = '<div class="loading"></div> Invio in corso...';
+                submitBtn.disabled = true;
+
+                // Prepare data for submission
+                const formData = collectFormData();
+                const submissionData = {
+                    metadata: {
+                        template_version: "2.0",
+                        generation_date: new Date().toISOString(),
+                        system: "SuperYacht RAG Assistant v6.0 Web",
+                        source: "Site.pro Web Interface"
+                    },
+                    request_parameters: {
+                        selected_registries: {
+                            selected: formData.registries
+                        },
+                        system_mode: {
+                            selected: formData.system_mode
+                        },
+                        search_both_databases: {
+                            selected: formData.search_both
+                        },
+                        output_language: {
+                            selected: formData.output_language
+                        },
+                        llm_model_name: {
+                            selected: formData.llm_model
+                        },
+                        advanced_filters: {
+                            yacht_type: {
+                                selected: formData.yacht_type || null
+                            },
+                            gt: {
+                                selected: formData.gt ? parseInt(formData.gt) : null
+                            },
+                            navigation_zone: {
+                                selected: formData.navigation_zone || null
+                            },
+                            flag_state: {
+                                selected: formData.flag_state || null
+                            }
+                        }
+                    },
+                    analysis_request: {
+                        question: {
+                            content: formData.question
+                        },
+                        user_email: formData.user_email
+                    },
+                    attachments: formData.attachments
+                };
+
+                // Send to serverless function
+                const response = await fetch(CONFIG.apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(submissionData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('✅ Richiesta inviata con successo! Riceverai una conferma via email.', 'success');
+                    // Reset form after success
+                    setTimeout(() => {
+                        resetForm();
+                        showSection('registries');
+                    }, 3000);
+                } else {
+                    throw new Error(result.error || 'Errore sconosciuto');
+                }
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                showNotification('❌ Errore nell\'invio della richiesta: ' + error.message, 'error');
+            } finally {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        function validateForm() {
+            const question = document.getElementById('question').value.trim();
+            const email = document.getElementById('user_email').value.trim();
+            
+            if (!question) {
+                showNotification('❌ Inserisci una domanda per procedere', 'error');
+                showSection('request');
+                return false;
+            }
+            
+            if (!email) {
+                showNotification('❌ Inserisci la tua email per ricevere la risposta', 'error');
+                showSection('request');
+                return false;
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showNotification('❌ Inserisci un indirizzo email valido', 'error');
+                showSection('request');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function resetForm() {
+            // Reset checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                if (cb.name === 'registries') {
+                    cb.checked = true;
+                } else {
+                    cb.checked = false;
+                }
+            });
+            
+            // Reset radio buttons
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = radio.value === 'online';
+            });
+            
+            // Reset selects
+            document.getElementById('output_language').value = 'it';
+            document.getElementById('llm_model').value = 'deepseek/deepseek-chat';
+            document.getElementById('yacht_type').value = '';
+            document.getElementById('navigation_zone').value = '';
+            document.getElementById('flag_state').value = '';
+            
+            // Reset inputs
+            document.getElementById('gt').value = '';
+            document.getElementById('question').value = '';
+            document.getElementById('user_email').value = '';
+            
+            // Reset files
+            state.selectedFiles = [];
+            updateFileList();
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
